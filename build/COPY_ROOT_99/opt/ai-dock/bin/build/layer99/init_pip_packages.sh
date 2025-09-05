@@ -51,20 +51,17 @@ PIP_PACKAGES=(
 function build_extra_start() {
     # Skip prebuild if SKIP_PREBUILD is set to true
     if [[ "${SKIP_PREBUILD,,}" == "true" ]]; then
-        printf "SKIP_PREBUILD is set to true, skipping ComfyUI test...\n"
+        printf "SKIP_PREBUILD is set to true, skipping model downloads...\n"
         return 0
     fi
-    
-    # Test ComfyUI installation
-    cd /opt/ComfyUI
-    source "$COMFYUI_VENV/bin/activate"
-    LD_PRELOAD=libtcmalloc.so python main.py \
-        --cpu \
-        --listen 127.0.0.1 \
-        --port 11404 \
-        --disable-auto-launch \
-        --quick-test-for-ci
-    deactivate
+    build_extra_get_pip_packages
+}
+
+function build_extra_get_pip_packages() {
+    if [ ${#PIP_PACKAGES[@]} -gt 0 ]; then
+        "$COMFYUI_VENV_PIP" install --no-cache-dir \
+            "${PIP_PACKAGES[@]}"
+    fi
 }
 
 umask 002

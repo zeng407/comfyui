@@ -23,6 +23,8 @@ ARG PYTHON_VERSION="3.10"
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 ARG PYTORCH_VERSION="2.4.0"
 ENV PYTORCH_VERSION="${PYTORCH_VERSION}"
+ARG SKIP_PREBUILD="false"
+ENV SKIP_PREBUILD=${SKIP_PREBUILD}
 COPY --chown=0:1111 ./COPY_ROOT_0/ /
 ARG IMAGE_BASE
 RUN set -eo pipefail && /opt/ai-dock/bin/build/layer0/init.sh | tee /var/log/build.log
@@ -36,6 +38,12 @@ RUN set -eo pipefail && /opt/ai-dock/bin/build/layer1/init.sh | tee -a /var/log/
 
 # Copy overrides and models into later layers for fast rebuilds
 COPY --chown=0:1111 ./COPY_ROOT_99/ /
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_nodes.sh | tee -a /var/log/build.log
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_pip_packages.sh | tee -a /var/log/build.log
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_models_base.sh | tee -a /var/log/build.log
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_models_controlnet.sh | tee -a /var/log/build.log
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_models_vision.sh | tee -a /var/log/build.log
+RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init_models_segmentation.sh | tee -a /var/log/build.log
 RUN set -eo pipefail && /opt/ai-dock/bin/build/layer99/init.sh | tee -a /var/log/build.log
 ENV PYTHON_DEFAULT_VENV=comfyui
 
