@@ -14,10 +14,10 @@ services:
         IMAGE_BASE: ${IMAGE_BASE:-ghcr.io/ai-dock/python:${PYTHON_VERSION:-3.10}-v2-cuda-12.1.1-base-22.04}
       tags:
         # - "ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}"
-        - "ghcr.io/zeng407/comfyui:v1"
+        - "ghcr.io/zeng407/comfyui:v1.2"
         
     # image: ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}
-    image: ghcr.io/zeng407/comfyui:v1
+    image: ghcr.io/zeng407/comfyui:v1.2
     
     ## For Nvidia GPU's - You probably want to uncomment this
     deploy:
@@ -36,7 +36,7 @@ services:
               
     volumes:
       ## Workspace
-      - ./workspace:${WORKSPACE:-/workspace/}:rshared
+      # - ./workspace:${WORKSPACE:-/workspace/}:rshared
       # You can share /workspace/storage with other non-ComfyUI containers. See README
       #- /path/to/common_storage:${WORKSPACE:-/workspace/}storage/:rshared
       

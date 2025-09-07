@@ -50,10 +50,10 @@ PIP_PACKAGES=(
 
 function build_extra_start() {
     # Skip prebuild if SKIP_PREBUILD is set to true
-    if [[ "${SKIP_PREBUILD,,}" == "true" ]]; then
-        printf "SKIP_PREBUILD is set to true, skipping model downloads...\n"
-        return 0
-    fi
+    # if [[ "${SKIP_PREBUILD,,}" == "true" ]]; then
+    #     printf "SKIP_PREBUILD is set to true, skipping model downloads...\n"
+    #     return 0
+    # fi
     build_extra_get_pip_packages
 }
 
