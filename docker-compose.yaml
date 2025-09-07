@@ -9,12 +9,17 @@ services:
         PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
         PYTORCH_VERSION: ${PYTORCH_VERSION:-2.4.1}
         COMFYUI_BUILD_REF: ${COMFYUI_BUILD_REF:-}
+        SKIP_PREBUILD: ${SKIP_PREBUILD:-false}
         # Base on Python image which is base + python + jupyter
         IMAGE_BASE: ${IMAGE_BASE:-ghcr.io/ai-dock/python:${PYTHON_VERSION:-3.10}-v2-cuda-12.1.1-base-22.04}
       tags:
-        - "ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}"
+        # - "ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}"
+        # - "ghcr.io/zeng407/comfyui:v1.3"
+        - "public.ecr.aws/n0u0w0c4/ai-interior-design/comfyui:v1.3"
         
-    image: ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}
+    # image: ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}
+    # image: ghcr.io/zeng407/comfyui:v1.3
+    image: public.ecr.aws/n0u0w0c4/ai-interior-design/comfyui:v1.3
     
     ## For Nvidia GPU's - You probably want to uncomment this
     deploy:
@@ -33,7 +38,7 @@ services:
               
     volumes:
       ## Workspace
-      - ./workspace:${WORKSPACE:-/workspace/}:rshared
+      # - ./workspace:${WORKSPACE:-/workspace/}:rshared
       # You can share /workspace/storage with other non-ComfyUI containers. See README
       #- /path/to/common_storage:${WORKSPACE:-/workspace/}storage/:rshared
       
@@ -87,4 +92,5 @@ services:
         - SYNCTHING_UI_PORT_HOST=${SYNCTHING_UI_PORT_HOST:-8384}
         - SYNCTHING_TRANSPORT_PORT_HOST=${SYNCTHING_TRANSPORT_PORT_HOST:-22999}
         - SYNCTHING_URL=${SYNCTHING_URL:-}
-        - PROVISIONING_SCRIPT=${PROVISIONING_SCRIPT:-}
+        - SKIP_PREBUILD=${SKIP_PREBUILD:-false}
+        # - PROVISIONING_SCRIPT=${PROVISIONING_SCRIPT:-}
