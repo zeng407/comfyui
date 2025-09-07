@@ -14,10 +14,12 @@ services:
         IMAGE_BASE: ${IMAGE_BASE:-ghcr.io/ai-dock/python:${PYTHON_VERSION:-3.10}-v2-cuda-12.1.1-base-22.04}
       tags:
         # - "ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}"
-        - "ghcr.io/zeng407/comfyui:v1.2"
+        # - "ghcr.io/zeng407/comfyui:v1.3"
+        - "public.ecr.aws/n0u0w0c4/ai-interior-design/comfyui:v1.3"
         
     # image: ghcr.io/ai-dock/comfyui:${IMAGE_TAG:-pytorch-${PYTORCH_VERSION:-2.3.0}-py3.10-v2-cuda-12.1.1-base-22.04}
-    image: ghcr.io/zeng407/comfyui:v1.2
+    # image: ghcr.io/zeng407/comfyui:v1.3
+    image: public.ecr.aws/n0u0w0c4/ai-interior-design/comfyui:v1.3
     
     ## For Nvidia GPU's - You probably want to uncomment this
     deploy:
