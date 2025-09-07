@@ -2,8 +2,10 @@ import asyncio
 import aiobotocore.session
 import aiofiles
 import aiofiles.os
+import os
 from config import config
 from pathlib import Path
+from requestmodels.models import S3Config
 
 class PostprocessWorker:
     """
@@ -33,7 +35,16 @@ class PostprocessWorker:
                 result = await self.response_store.get(request_id)
                 
                 await self.move_assets(request_id, result)
-                await self.upload_assets(request_id, request.input.s3.get_config(), result)
+                
+                # Handle case where s3 config is stored as dict instead of S3Config object
+                if hasattr(request.input.s3, 'get_config'):
+                    s3_config = request.input.s3.get_config()
+                else:
+                    # s3 is a dictionary, reconstruct S3Config object and get config
+                    s3_obj = S3Config(**request.input.s3)
+                    s3_config = s3_obj.get_config()
+                
+                await self.upload_assets(request_id, s3_config, result)
 
                 result.status = "success"
                 result.message = "Process complete."
@@ -78,6 +89,26 @@ class PostprocessWorker:
                             })
 
     async def upload_assets(self, request_id, s3_config, result):
+        # Check if S3 upload is disabled via environment variable
+        s3_upload_enabled = os.getenv("S3_UPLOAD_ENABLED", "false").lower() == "true"
+        
+        if not s3_upload_enabled:
+            print(f"S3 upload disabled for request {request_id}, skipping upload")
+            # Set local file paths as URLs instead of S3 URLs
+            for obj in result.output:
+                local_path = obj["local_path"]
+                obj["url"] = f"file://{local_path}"
+            return
+        
+        # Check if S3 config has required fields
+        if not all([s3_config.get("access_key_id"), s3_config.get("secret_access_key"), 
+                   s3_config.get("endpoint_url"), s3_config.get("bucket_name")]):
+            print(f"S3 config incomplete for request {request_id}, skipping upload")
+            for obj in result.output:
+                local_path = obj["local_path"]
+                obj["url"] = f"file://{local_path}"
+            return
+        
         session = aiobotocore.session.get_session()
         async with session.create_client(
             's3',
