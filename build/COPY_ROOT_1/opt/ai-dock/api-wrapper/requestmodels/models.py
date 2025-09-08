@@ -24,10 +24,10 @@ class S3Config(BaseModel):
     
     def get_config(self):
         return {
-            "access_key_id": getattr(self, "access_key_id", os.environ.get("S3_ACCESS_KEY_ID", "")),
-            "secret_access_key": getattr(self, "secret_access_key", os.environ.get("S3_SECRET_ACCESS_KEY", "")),
-            "endpoint_url": getattr(self, "endpoint_url", os.environ.get("S3_ENDPOINT_URL", "")),
-            "bucket_name": getattr(self, "bucket_name", os.environ.get("S3_BUCKET_NAME", "")),
+            "access_key_id": getattr(self, "access_key_id", "") or os.environ.get("S3_ACCESS_KEY_ID", ""),
+            "secret_access_key": getattr(self, "secret_access_key", "") or os.environ.get("S3_SECRET_ACCESS_KEY", ""),
+            "endpoint_url": getattr(self, "endpoint_url", "") or os.environ.get("S3_ENDPOINT_URL", ""),
+            "bucket_name": getattr(self, "bucket_name", "") or os.environ.get("S3_BUCKET_NAME", ""),
             "connect_timeout": "5",
             "connect_attempts": "1"
         }

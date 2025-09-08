@@ -38,11 +38,21 @@ class PostprocessWorker:
                 
                 # Handle case where s3 config is stored as dict instead of S3Config object
                 if hasattr(request.input.s3, 'get_config'):
+                    print(f"DEBUG: request.input.s3 is S3Config object")
                     s3_config = request.input.s3.get_config()
                 else:
+                    print(f"DEBUG: request.input.s3 is dict: {type(request.input.s3)}")
+                    print(f"DEBUG: request.input.s3 content: {request.input.s3}")
                     # s3 is a dictionary, reconstruct S3Config object and get config
                     s3_obj = S3Config(**request.input.s3)
                     s3_config = s3_obj.get_config()
+                    print(f"DEBUG: Environment variables:")
+                    print(f"  S3_ACCESS_KEY_ID: {'***' if os.getenv('S3_ACCESS_KEY_ID') else 'None'}")
+                    print(f"  S3_SECRET_ACCESS_KEY: {'***' if os.getenv('S3_SECRET_ACCESS_KEY') else 'None'}")
+                    print(f"  S3_ENDPOINT_URL: {os.getenv('S3_ENDPOINT_URL', 'None')}")
+                    print(f"  S3_BUCKET_NAME: {os.getenv('S3_BUCKET_NAME', 'None')}")
+                    print(f"DEBUG: Final s3_config keys: {list(s3_config.keys())}")
+                    print(f"DEBUG: S3_UPLOAD_ENABLED env var: {os.getenv('S3_UPLOAD_ENABLED', 'not set')}")
                 
                 await self.upload_assets(request_id, s3_config, result)
 
@@ -101,9 +111,19 @@ class PostprocessWorker:
             return
         
         # Check if S3 config has required fields
-        if not all([s3_config.get("access_key_id"), s3_config.get("secret_access_key"), 
-                   s3_config.get("endpoint_url"), s3_config.get("bucket_name")]):
-            print(f"S3 config incomplete for request {request_id}, skipping upload")
+        missing_fields = []
+        if not s3_config.get("access_key_id"):
+            missing_fields.append("access_key_id")
+        if not s3_config.get("secret_access_key"):
+            missing_fields.append("secret_access_key")
+        if not s3_config.get("endpoint_url"):
+            missing_fields.append("endpoint_url")
+        if not s3_config.get("bucket_name"):
+            missing_fields.append("bucket_name")
+        
+        if missing_fields:
+            print(f"S3 config incomplete for request {request_id}, missing fields: {missing_fields}")
+            print(f"Current S3 config: {dict((k, '***' if 'key' in k.lower() else v) for k, v in s3_config.items())}")
             for obj in result.output:
                 local_path = obj["local_path"]
                 obj["url"] = f"file://{local_path}"
