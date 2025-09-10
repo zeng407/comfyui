@@ -95,4 +95,56 @@ async def result(request_id: str, response: Response):
 async def queue_info():
     return list(request_queue.queue)
 
-        
+@app.post('/payload-sync', response_model=Result, status_code=200)
+async def payload_sync(
+    payload: Annotated[
+        Payload,
+        Body(
+            openapi_examples=Payload.get_openapi_examples()
+        ),
+    ],
+):
+    if not payload.input.request_id:
+        payload.input.request_id = str(uuid.uuid4())
+    request_id = payload.input.request_id
+
+    # Immediately store request for crash recovery (redis)
+    await request_store.set(request_id, payload)
+
+    # Preprocess
+    preprocess_worker = PreprocessWorker(0, {
+        "preprocess_queue": preprocess_queue,
+        "generation_queue": generation_queue,
+        "postprocess_queue": postprocess_queue,
+        "request_store": request_store,
+        "response_store": response_store,
+    })
+    await preprocess_worker.process_request(request_id)
+
+    # Generate
+    generation_worker = GenerationWorker(0, {
+        "preprocess_queue": preprocess_queue,
+        "generation_queue": generation_queue,
+        "postprocess_queue": postprocess_queue,
+        "request_store": request_store,
+        "response_store": response_store,
+    })
+    await generation_worker.process_request(request_id)
+
+    # Postprocess
+    postprocess_worker = PostprocessWorker(0, {
+        "preprocess_queue": preprocess_queue,
+        "generation_queue": generation_queue,
+        "postprocess_queue": postprocess_queue,
+        "request_store": request_store,
+        "response_store": response_store,
+    })
+    await postprocess_worker.process_request(request_id)
+
+    # Retrieve and return the final result
+    result = await response_store.get(request_id)
+    if not result:
+        result = Result(id=request_id, status="failed", message="Processing failed")
+
+    return result
+
