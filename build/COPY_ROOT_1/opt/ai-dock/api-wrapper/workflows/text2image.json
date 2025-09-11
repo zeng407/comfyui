@@ -28,14 +28,14 @@
     },
     "4": {
       "inputs": {
-        "ckpt_name": "v1-5-pruned-emaonly.ckpt"
+        "ckpt_name": "v1-5-pruned-emaonly-fp16.safetensors"
       },
       "class_type": "CheckpointLoaderSimple"
     },
     "5": {
       "inputs": {
-        "width": 1024,
-        "height": 1024,
+        "width": 512,
+        "height": 512,
         "batch_size": 1
       },
       "class_type": "EmptyLatentImage"
