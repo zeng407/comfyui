@@ -18,11 +18,11 @@ function build_models_controlnet() {
     )
 
     CONTROLNET_MODELS_SDXL_CANNY=(
-        "https://huggingface.co/xinsir/controlnet-canny-sdxl-1.0/resolve/main/diffusion_pytorch_model_V2.safetensors"
+        # "https://huggingface.co/xinsir/controlnet-canny-sdxl-1.0/resolve/main/diffusion_pytorch_model_V2.safetensors"
     )
 
     CONTROLNET_MODELS_SDXL_DEPTH=(
-        "https://huggingface.co/xinsir/controlnet-depth-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors"
+        # "https://huggingface.co/xinsir/controlnet-depth-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors"
     )
 
     build_extra_get_models \
